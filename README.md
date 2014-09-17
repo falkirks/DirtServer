@@ -7,7 +7,7 @@ Start by cloning this repository. If you don't have git just download the ZIP an
 ```
 git clone https://github.com/Falkirks/DirtServer
 ```
-Now install the DirtServer and it's dependencies. You will need npm to do this.
+Now install DirtServer and it's dependencies. You will need npm to do this.
 ```
 npm install -g ./DirtServer
 ```
