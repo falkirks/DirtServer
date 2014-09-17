@@ -9,7 +9,7 @@ git clone https://github.com/Falkirks/DirtServer
 ```
 Now install the DirtServer and it's dependencies. You will need npm to do this.
 ```
-npm install -g DirtServer
+npm install -g ./DirtServer
 ```
 You should now be able to run DirtServer from the command line.
 ```
