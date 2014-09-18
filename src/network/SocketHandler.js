@@ -38,7 +38,7 @@ SocketHandler = function (port){
                     r.decode();
                     var res = new OPEN_CONNECTION_REPLY_2(rinfo.port, r.mtusize);
                     res.encode();
-                    var p = new Player(rinfo.address,rinfo.port)
+                    var p = new Player(rinfo.address, rinfo.port, r.mtusize);
                     if(!this.players.clientExists(p)){
                         this.players.push(p); //Add player to clients
                         console.log("Added player.");
@@ -58,7 +58,7 @@ SocketHandler = function (port){
                 if(this.players[i].ip == rinfo.address && this.players[i].port == rinfo.port){
                     var e = new EncapsulatedPacket(buf);
                     e.decode();
-                    this.players[i].handlePacket(e.packets);
+                    this.players[i].handlePacket(e);
                     return;
                 }
             }
@@ -73,9 +73,9 @@ SocketHandler = function (port){
     });
     this.server.on("listening", function () {
         var address = this.address();
-        console.log("server listening " + address.address + ":" + address.port);
+        console.log("DirtServer started on " + address.address + ":" + address.port);
     });
 }
 SocketHandler.prototype.sendPacket = function(pk, ip, port){
-    this.server.send(pk.bb.buffer, 0, pk.bb.buffer.length, ip, port);
+    this.server.send(pk.bb.buffer, 0, pk.bb.buffer.length, port, ip);
 }

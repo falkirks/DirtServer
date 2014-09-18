@@ -8,9 +8,6 @@ EncapsulatedPacket = function(buf){
         this.packets = buf;
         this.id = raknet.DATA_PACKET_4;
         this.sequencenumber = 0;
-        if(this.packets.length > 0){
-            this.sequencenumber = this.packets[ this.packets.length - 1 ];
-        }
     }
 }
 EncapsulatedPacket.prototype.decode = function(){
@@ -23,19 +20,19 @@ EncapsulatedPacket.prototype.decode = function(){
         switch (type){
             case 0x00:
                 var pklength = this.bb.readShort();
-                this.packets.push(new InternalPacket(this.bb.slice(this.bb.offset, this.bb.offset+(pklength/8)), this.sequencenumber));
+                this.packets.push(new InternalPacket(this.bb.slice(this.bb.offset, this.bb.offset+(pklength/8))));
                 this.bb.offset += (pklength/8);
                 break;
             case 0x40:
                 var pklength = this.bb.readShort();
                 this.bb.skip(3); //Skip count triad
-                this.packets.push(new InternalPacket(this.bb.slice(this.bb.offset, this.bb.offset+(pklength/8)), this.sequencenumber));
+                this.packets.push(new InternalPacket(this.bb.slice(this.bb.offset, this.bb.offset+(pklength/8))));
                 this.bb.offset += (pklength/8);
                 break;
             case 0x60:
                 var pklength = this.bb.readShort();
                 this.bb.skip(7); //Skip count triad and Unknown long
-                this.packets.push(new InternalPacket(this.bb.slice(this.bb.offset, this.bb.offset+(pklength/8)), this.sequencenumber));
+                this.packets.push(new InternalPacket(this.bb.slice(this.bb.offset, this.bb.offset+(pklength/8))));
                 this.bb.offset += (pklength/8);
                 break;
             default:
