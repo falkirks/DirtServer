@@ -54,12 +54,11 @@ SocketHandler = function (port){
             }
         }
         else if(id >= raknet.DATA_PACKET_0 &&  id <= raknet.DATA_PACKET_F){
-            console.log("Recieved data packet: " + id);
             for(var i = 0; i < this.players.length; i++){
                 if(this.players[i].ip == rinfo.address && this.players[i].port == rinfo.port){
                     var e = new EncapsulatedPacket(buf);
                     e.decode();
-                    this.players[i].handlePacket(e);
+                    this.players[i].handlePacket(e.packets);
                     return;
                 }
             }
