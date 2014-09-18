@@ -4,5 +4,6 @@ UNCONNECTED_PING = function(buf){
 }
 UNCONNECTED_PING.prototype.decode = function(){
     this.pingID = this.bb.readLong();
+
     this.bb.flip();
 }

@@ -1,6 +1,6 @@
 SocketHandler = function (port){
     this.server = dgram.createSocket("udp4");
-    this.server.clients = [];
+    this.server.players = [];
     this.server.bind(port);
     this.server.on("error", function (err) {
         console.log("server error:\n" + err.stack);
@@ -38,8 +38,14 @@ SocketHandler = function (port){
                     r.decode();
                     var res = new OPEN_CONNECTION_REPLY_2(rinfo.port, r.mtusize);
                     res.encode();
-                    this.send(res.bb.buffer, 0, res.bb.buffer.length, rinfo.port, rinfo.address); //Send waiting data buffer
-                    this.clients.push(new Player(rinfo.address,rinfo.port)); //Add player to clients
+                    var p = new Player(rinfo.address,rinfo.port)
+                    if(!this.players.clientExists(p)){
+                        this.players.push(p); //Add player to clients
+                        this.send(res.bb.buffer, 0, res.bb.buffer.length, rinfo.port, rinfo.address); //Send waiting data buffer
+                    }
+                    else{
+                        p.close("You are already logged in.");
+                    }
                     break;
                 default:
                     console.log("Unknown raknet packet.");
@@ -48,12 +54,15 @@ SocketHandler = function (port){
         }
         else if(id >= raknet.DATA_PACKET_0 &&  id <= raknet.DATA_PACKET_F){
             console.log("Recieved data packet: " + id);
-            for(i = 0; i < this.clients.length; i++){
-                if(this.clients[i].ip == rinfo.address && this.clients[i].port == rinfo.address){
-                    this.clients[i].handlePacket(buf);
+            for(var i = 0; i < this.players.length; i++){
+                if(this.players[i].ip == rinfo.address && this.players[i].port == rinfo.port){
+                    var e = new EncapsulatedPacket(buf);
+                    e.decode();
+                    this.players[i].handlePacket(buf);
                     return;
                 }
             }
+            console.log("Couldn't find a player.")
         }
         else if(id == raknet.ACK || id == raknet.NACK){
             console.log("Got the ACK");
