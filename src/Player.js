@@ -4,36 +4,39 @@ Player = function (ip, port) {
     this.ACKQueue = [];
     this.NACKQueue = [];
     this.recoveryQueue = {};
-    this.packetQueue = new ByteBuffer();
+    this.packetQueue = new EncapsulatedPacket([]);
     this.sequencenumber = 0;
     this.updateTask = setInterval(this.update, 1000/2, this); //Update every 1/2 second
 }
 Player.prototype.update = function(player) {
-    //console.log(player.ACKQueue);
+    console.log(player.packetQueue);
 };
 Player.prototype.handlePacket = function(packets) {
-    packets.forEach(function(packet){
-        switch(packet.id){
+    for(var i = 0; i < packets.length; i++){
+        switch(packets[i].id){
             case minecraft.CLIENT_CONNECT:
-                var c = new ClientConnectPacket(packet.bb);
+                var c = new ClientConnectPacket(packets[i].bb);
                 c.decode();
-
+                var pk = new ServerHandshakePacket(this.port, c.session);
+                this.sendPacket(pk);
+                break;
+            default:
+                console.log("Not implemented data packet " + packets[i].id);
                 break;
         }
-    });
+    }
 };
 Player.prototype.close = function (msg){
     if(msg !== null){
         this.sendMessage(msg);
     }
     var d = new Disconnect();
-    d.encode();
     console.log("Client disconnected.");
-    this.sendPacket(d);
-}
-Player.prototype.sendMessage = function(msg){
-    //TODO
 }
 Player.prototype.sendPacket = function(pk){
-    SocketHandler.sendPacket(pk, this.port, this.ip);
+    this.packetQueue.sequencenumber++;
+    pk.encode();
+    this.packetQueue.packets.push(pk);
+    this.packetQueue.encode();
+    //SocketHandler.sendPacket(pk, this.port, this.ip);
 }

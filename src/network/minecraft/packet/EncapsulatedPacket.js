@@ -47,15 +47,14 @@ EncapsulatedPacket.prototype.decode = function(){
 }
 EncapsulatedPacket.prototype.encode = function(){
     if(this.packets.length > 0){
-        this.sequencenumber = this.packets[ this.packets.length - 1 ].sequencenumber;
         this.bb.writeUint32(this.sequencenumber);
         this.bb.reset();
         this.bb.writeByte(this.id);
         this.bb.skip(3);
         for (var i = 0; i < this.packets.length; i++) {
             this.bb.writeByte(0x00);
-            this.bb.writeShort(packets[i].bb.buffer.length);
-            this.bb = ByteBuffer.concat(this.bb, packet.bb);
+            this.bb.writeShort(this.packets[i].bb.buffer.length);
+            this.bb = ByteBuffer.concat([this.bb, this.packets[i].bb]);
             this.bb.offset = this.bb.limit;
         }
     }
