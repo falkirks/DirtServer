@@ -41,10 +41,11 @@ SocketHandler = function (port){
                     var p = new Player(rinfo.address,rinfo.port)
                     if(!this.players.clientExists(p)){
                         this.players.push(p); //Add player to clients
+                        console.log("Added player.");
                         this.send(res.bb.buffer, 0, res.bb.buffer.length, rinfo.port, rinfo.address); //Send waiting data buffer
                     }
                     else{
-                        p.close("You are already logged in.");
+
                     }
                     break;
                 default:
@@ -58,7 +59,7 @@ SocketHandler = function (port){
                 if(this.players[i].ip == rinfo.address && this.players[i].port == rinfo.port){
                     var e = new EncapsulatedPacket(buf);
                     e.decode();
-                    this.players[i].handlePacket(buf);
+                    this.players[i].handlePacket(e);
                     return;
                 }
             }
@@ -75,4 +76,7 @@ SocketHandler = function (port){
         var address = this.address();
         console.log("server listening " + address.address + ":" + address.port);
     });
+}
+SocketHandler.prototype.sendPacket = function(pk, ip, port){
+    this.server.send(pk.bb.buffer, 0, pk.bb.buffer.length, ip, port);
 }

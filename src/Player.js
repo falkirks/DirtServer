@@ -1,11 +1,10 @@
 Player = function (ip, port) {
     this.ip = ip;
     this.port = port;
-    console.log("Player constructor called "+ ip)
 }
 
 Player.prototype.handlePacket = function(buf) {
-    console.log(buf.toDebug());
+    console.log(buf.packets[0].toDebug());
 };
 Player.prototype.close = function (msg){
     if(msg !== null){
@@ -20,5 +19,5 @@ Player.prototype.sendMessage = function(msg){
     //TODO
 }
 Player.prototype.sendPacket = function(pk){
-    SocketHandler.server.send(pk.bb.buffer, 0, pk.bb.buffer.length, this.port, this.ip);
+    SocketHandler.sendPacket(pk, this.port, this.ip);
 }
