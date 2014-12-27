@@ -8,8 +8,15 @@ Player = function (ip, port, mtuSize) {
     this.mtuSize = mtuSize;
     this.sequencenumber = 0;
     this.lastSequenceNumber = 0;
-    this.updateTask = setInterval(this.update, 1000/2, this); //Update every 1/2 second
-}
+    this.updateTask = setInterval(
+        (function(self) {         //Self-executing func which takes 'this' as self
+            return function() {   //Return a function in the context of 'self'
+                self.update(self); //Thing you wanted to run as non-window 'this'
+            }
+        })(this),
+        1000/2     //normal interval, 'this' scope not impacted here.
+    );
+};
 Player.prototype.update = function(player) {
     if(player.ACKQueue.length > 0){
 
@@ -20,13 +27,13 @@ Player.prototype.update = function(player) {
     if(player.packetQueue.packets.length > 0){
         player.packetQueue.sequencenumber++;
         player.packetQueue.encode();
-        console.log(player.port);
+        //console.log(player.packetQueue.bb);
         SocketInstance.sendPacket(player.packetQueue, player.ip, player.port);
         player.recoveryQueue[player.packetQueue.sequencenumber] = player.packetQueue.packets;
         player.packetQueue.packets = [];
     }
 };
-Player.prototype.handlePacket = function(e) {
+Player.prototype.handlePackets = function(e) {
     var packets = e.packets;
     if(e.sequencenumber - this.lastSequenceNumber == 1){
         this.lastSequenceNumber = e.sequencenumber;
@@ -38,17 +45,21 @@ Player.prototype.handlePacket = function(e) {
         }
     }
     for(var i = 0; i < packets.length; i++){
-        switch(packets[i].id){
-            case minecraft.CLIENT_CONNECT:
-                var c = new ClientConnectPacket(packets[i].bb);
-                c.decode();
-                var pk = new ServerHandshakePacket(this.port, c.session);
-                this.sendPacket(pk);
-                break;
-            default:
-                console.log("Not implemented data packet " + packets[i].id);
-                break;
-        }
+        this.handlePacket(packets[i]);
+    }
+};
+Player.prototype.handlePacket = function(pk){
+    var pkid = pk.buffer.readByte();
+    switch(pkid){
+        case minecraft.CLIENT_CONNECT:
+            var c = new ClientConnectPacket(pk.buffer.copy());
+            c.decode();
+            var reply = new ServerHandshakePacket(this.port, c.session);
+            this.sendPacket(reply);
+            break;
+        default:
+            console.log("Not implemented data packet " + pkid);
+            break;
     }
 };
 Player.prototype.close = function (msg){

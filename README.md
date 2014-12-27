@@ -2,7 +2,9 @@ DirtServer
 ===========
 DirtServer is an MCPE server written in JavaScript. Currently only raknet is implemented. Feel free to pull request if you can make something work better.
 
-###Installation
+DirtServer uses ported packet encoding and decoding from an old version of BlockServer.
+
+### Installation
 Start by cloning this repository. If you don't have git just download the ZIP and extract it as "DirtServer".
 ```
 git clone https://github.com/Falkirks/DirtServer

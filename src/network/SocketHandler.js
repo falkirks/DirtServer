@@ -58,7 +58,7 @@ SocketHandler = function (port){
                 if(this.players[i].ip == rinfo.address && this.players[i].port == rinfo.port){
                     var e = new EncapsulatedPacket(buf);
                     e.decode();
-                    this.players[i].handlePacket(e);
+                    this.players[i].handlePackets(e);
                     return;
                 }
             }
@@ -75,7 +75,7 @@ SocketHandler = function (port){
         var address = this.address();
         console.log("DirtServer started on " + address.address + ":" + address.port);
     });
-}
+};
 SocketHandler.prototype.sendPacket = function(pk, ip, port){
     this.server.send(pk.bb.buffer, 0, pk.bb.buffer.length, port, ip);
-}
+};
