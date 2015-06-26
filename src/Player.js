@@ -68,8 +68,8 @@ Player.prototype.close = function (msg){
     }
     var d = new Disconnect();
     console.log("Client disconnected.");
-}
+};
 Player.prototype.sendPacket = function(pk){
     pk.encode();
     this.packetQueue.packets.push(pk);
-}
+};
